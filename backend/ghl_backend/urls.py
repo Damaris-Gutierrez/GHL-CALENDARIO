@@ -3,5 +3,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include("ghl.urls")),
+    path("ghl/", include("ghl.urls")),  # Prefijo para todos los endpoints GHL
 ]

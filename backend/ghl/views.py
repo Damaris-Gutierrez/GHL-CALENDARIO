@@ -1,35 +1,68 @@
-from django.http import JsonResponse, HttpResponseRedirect
+import requests
+from django.conf import settings
+from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
 
-from .services.oauth_client import get_authorize_url, exchange_code_for_token
-from .services.ghl_client import set_access_token, crear_contacto
+def get_headers():
+    """
+    Headers correctos según documentación GHL:
+    - Authorization: Bearer <token>
+    - Version: 2021-04-15
+    - Accept: application/json
+    """
+    return {
+        "Authorization": f"Bearer {settings.GHL_PRIVATE_TOKEN}",
+        "Version": "2021-04-15",
+        "Accept": "application/json"
+    }
 
-def iniciar_oauth(request):
-    """Redirige al login de GHL"""
-    url = get_authorize_url()
-    return HttpResponseRedirect(url)
-
-def callback_oauth(request):
-    """Recibe el code de GHL y pide el access_token"""
-    code = request.GET.get("code")
-    if not code:
-        return JsonResponse({"error": "Falta code en la URL"}, status=400)
+def safe_json_response(response):
+    """
+    Retorna JsonResponse seguro.
+    Si falla, devuelve status y texto crudo.
+    """
     try:
-        token_data = exchange_code_for_token(code)
-        access_token = token_data.get("access_token")
-        set_access_token(access_token)
-        return JsonResponse({"message": "Autenticado con éxito", "token": access_token})
-    except Exception as e:
-        return JsonResponse({"error": str(e)}, status=400)
+        return JsonResponse(response.json(), safe=False, status=response.status_code)
+    except Exception:
+        return JsonResponse({"status": response.status_code, "raw": response.text}, status=response.status_code)
 
 @csrf_exempt
-def enviar_contacto(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            result = crear_contacto(data)
-            return JsonResponse(result, safe=False)
-        except Exception as e:
-            return JsonResponse({"error": str(e)}, status=400)
-    return JsonResponse({"error": "Método no permitido"}, status=405)
+def ping(request):
+    """Prueba simple de conexión a la API de GHL"""
+    url = f"{settings.GHL_BASE_URL}/calendars/"
+    try:
+        response = requests.get(url, headers=get_headers())
+        return safe_json_response(response)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def calendars(request):
+    """Obtener lista de calendarios de la subcuenta asociada al token"""
+    url = f"{settings.GHL_BASE_URL}/calendars/"
+    
+    # Query params opcionales
+    params = {}
+    if getattr(settings, "GHL_LOCATION_ID", None):
+        params["locationId"] = settings.GHL_LOCATION_ID
+
+    # showDrafted opcional
+    show_drafted = request.GET.get("showDrafted")
+    if show_drafted is not None:
+        params["showDrafted"] = show_drafted.lower() == "true"
+
+    try:
+        response = requests.get(url, headers=get_headers(), params=params)
+        return safe_json_response(response)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
+
+@csrf_exempt
+def calendar_detail(request, calendar_id):
+    """Detalle de un calendario específico"""
+    url = f"{settings.GHL_BASE_URL}/calendars/{calendar_id}"
+    try:
+        response = requests.get(url, headers=get_headers())
+        return safe_json_response(response)
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
