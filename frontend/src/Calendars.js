@@ -13,15 +13,15 @@ export default function Calendars() {
   return (
     <div className="card shadow-sm">
       <div className="card-body">
-        <h5 className="card-title mb-3">Calendarios Disponibles</h5>
+        <h5 className="card-title mb-3"><strong>Calendarios Disponibles</strong></h5>
         {calendars.length > 0 ? (
           <div className="table-responsive">
             <table className="table table-striped table-bordered">
-              <thead className="table-light">
+              <thead>
                 <tr>
-                  <th>ID</th>
-                  <th>Nombre</th>
-                  <th>Activo</th>
+                  <th style={{ backgroundColor: " darkorange", color: "white" , fontFamily: "sans-serif", padding: "1rem 0"}}>ID</th>
+                  <th style={{ backgroundColor: " darkorange", color: "white" , fontFamily: "sans-serif", padding: "1rem 0"}}>Nombre</th>
+                  <th style={{ backgroundColor: " darkorange", color: "white" , fontFamily: "cursive", padding: "1rem 0"}}>Activo</th>
                 </tr>
               </thead>
               <tbody>

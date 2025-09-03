@@ -30,13 +30,13 @@ export default function PingGHL() {
   return (
     <div className="card mb-4 shadow-sm">
       <div className="card-body">
-        <h5 className="card-title">Probar Conexión con GHL</h5>
+        <h5 className="card-title"><strong>Probar Conexión con GHL</strong> </h5>
         <button
           onClick={handlePing}
           disabled={loading}
           className="btn btn-primary"
         >
-          {loading ? "Conectando..." : "Probar Conexión"}
+          {loading ? "En espera de conexion..." : "Conectar"}
         </button>
 
         {status && (
