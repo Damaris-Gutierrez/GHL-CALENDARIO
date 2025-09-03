@@ -4,7 +4,7 @@ export default function Calendars() {
   const [calendars, setCalendars] = useState([]);
 
   useEffect(() => {
-    fetch("/ghl/calendars/")
+    fetch("http://127.0.0.1:8000/ghl/calendars/")
       .then((res) => res.json())
       .then((data) => setCalendars(data.calendars || []))
       .catch(console.error);
@@ -29,14 +29,16 @@ export default function Calendars() {
                   <tr key={cal.id}>
                     <td>{cal.id}</td>
                     <td>{cal.name}</td>
-                    <td>{cal.isActive ? "✅" : "❌"}</td>
+                    <td>{cal.status === "Activo" ? "✅" : "❌"}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         ) : (
-          <p className="text-center text-muted">No hay calendarios disponibles</p>
+          <p className="text-center text-muted">
+            No hay calendarios disponibles
+          </p>
         )}
       </div>
     </div>

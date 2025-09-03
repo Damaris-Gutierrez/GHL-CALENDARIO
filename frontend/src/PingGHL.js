@@ -9,13 +9,16 @@ export default function PingGHL() {
     setStatus(null);
 
     try {
-      const res = await fetch("/ghl/ping/");
+      const res = await fetch("http://127.0.0.1:8000/ghl/ping/"); // 👈 URL completa
       const data = await res.json();
 
       if (res.ok) {
         setStatus({ success: true, message: "✅ Conexión exitosa con GHL" });
       } else {
-        setStatus({ success: false, message: `❌ Error: ${data.message || data.error}` });
+        setStatus({
+          success: false,
+          message: `❌ Error: ${data.message || data.error}`,
+        });
       }
     } catch (error) {
       setStatus({ success: false, message: `❌ Error: ${error.message}` });

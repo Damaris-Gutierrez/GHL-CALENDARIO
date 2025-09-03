@@ -1,36 +1,17 @@
-"""
-Django settings for ghl_backend project.
-"""
-
+import os
 from pathlib import Path
-import environ
+from dotenv import load_dotenv
+
+load_dotenv()  # carga .env
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Inicializar entorno
-env = environ.Env(
-    DEBUG=(bool, False)
-)
+SECRET_KEY = "cambia-esto"
 
-# Leer archivo .env (debe estar en la raíz del proyecto, junto a manage.py)
-environ.Env.read_env(BASE_DIR / ".env")
+DEBUG = True
 
-# Clave y Debug desde .env
-SECRET_KEY = env("DJANGO_SECRET_KEY", default="insecure-secret")
-DEBUG = env("DEBUG", default=False)
+ALLOWED_HOSTS = []
 
-# Private Token (para llamadas directas con la API de GHL)
-GHL_PRIVATE_TOKEN = env("GHL_PRIVATE_TOKEN", default=None)
-# 🔹 Base URL correcta para Private Token
-GHL_BASE_URL = env("GHL_BASE_URL", default="https://rest.gohighlevel.com")
-GHL_LOCATION_ID = env("GHL_LOCATION_ID", default=None)
-
-
-ALLOWED_HOSTS = ["*"]  # Para desarrollo, en producción define tu dominio
-
-# ---------------------------------------------------------
-# Application definition
-# ---------------------------------------------------------
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -38,15 +19,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "corsheaders",   # Para permitir peticiones desde React
-    "ghl",           # Tu app personalizada
+    "corsheaders",   # 👈 para CORS
+    "ghl",           # 👈 tu app
 ]
 
 MIDDLEWARE = [
-    "corsheaders.middleware.CorsMiddleware",  # <- debe estar arriba de CommonMiddleware
-    "django.middleware.common.CommonMiddleware",
+    "corsheaders.middleware.CorsMiddleware",  # 👈 importante, arriba de CommonMiddleware
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
@@ -62,6 +43,7 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
+                "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
@@ -72,9 +54,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "ghl_backend.wsgi.application"
 
-# ---------------------------------------------------------
-# Base de datos (SQLite en desarrollo)
-# ---------------------------------------------------------
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -82,38 +61,29 @@ DATABASES = {
     }
 }
 
-# ---------------------------------------------------------
-# Validaciones de contraseña
-# ---------------------------------------------------------
-AUTH_PASSWORD_VALIDATORS = [
-    {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
-    {"NAME": "django.contrib.auth.password_validation.MinimumLengthValidator"},
-    {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"},
-    {"NAME": "django.contrib.auth.password_validation.NumericPasswordValidator"},
-]
-
-# ---------------------------------------------------------
-# Idioma y zona horaria
-# ---------------------------------------------------------
-LANGUAGE_CODE = "en-us"
-TIME_ZONE = "UTC"
+LANGUAGE_CODE = "es-es"
+TIME_ZONE = "America/Lima"
 USE_I18N = True
 USE_TZ = True
 
-# ---------------------------------------------------------
-# Archivos estáticos
-# ---------------------------------------------------------
 STATIC_URL = "static/"
 
-# Clave primaria por defecto
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-# ---------------------------------------------------------
-# 🔹 Configuración de CORS para permitir peticiones desde React
-# ---------------------------------------------------------
-CORS_ALLOW_ALL_ORIGINS = True  # Permite acceso desde cualquier origen (solo en desarrollo)
-# En producción usa:
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:3000",
-#     "https://tu-dominio.com"
-# ]
+# 👇 Variables personalizadas
+
+# URL base de GHL
+GHL_BASE_URL = "https://services.leadconnectorhq.com"
+
+# Token privado (Private Integration Token de tu subcuenta)
+GHL_PRIVATE_TOKEN = "pit-5b57cd65-6de3-4681-9a11-a9de464a8db6"
+
+# LocationId de tu subcuenta (requerido por la API)
+GHL_LOCATION_ID = "r3UrTfNuQviYjKT9vfVz"
+
+
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # React Vite
+    "http://localhost:3000",  # React CRA
+]
